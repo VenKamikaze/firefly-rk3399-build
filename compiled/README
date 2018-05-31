@@ -1,0 +1,20 @@
+bl31.elf is arm-trusted-firmware (master as of 2018-05-28)
+
+Opt 1)
+idbspl.img is u-boot SPL with bl31.elf (master as of 2018-05-28)
+u-boot.itb is u-boot 2018.05 with bl31.elf (master as of 2018-05-28)
+No need to flash trust.img for this one
+
+Opt 2)
+uboot-for-miniloader.img is u-boot-dtb.bin packed with loaderimage for the miniloader, also with bl31.elf (master as of 2018-05-28)
+Must flash trust.img for this one.
+
+followed this guide: https://github.com/u-boot/u-boot/tree/master/board/rockchip/evb_rk3399
+
+
+Kernel / Resource info:
+1) Kernel is compiled v4.16 tag from linux-rockchip tree.
+2) DTB is compiled from that same tree, renamed to rk-kernel.dtb.
+3) logo.bmp is copied from the existing resource.img from the eMMC
+4) Resource.img was then repacked using the resource_tool from rkbin
+5) Kernel 'Image' was packed using mkkrnlimg from rkbin.

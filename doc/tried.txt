@@ -1,0 +1,71 @@
+1) Built xypron debian image
+2) Get rockchip repos and build u-boot for firefly rk3399:
+repo init --repo-url=https://github.com/rockchip-linux/repo -u https://github.com/rockchip-linux/manifests -b master
+repo sync
+
+sudo apt-get install device-tree-compiler
+build/mk-uboot.sh rk3399-firefly
+# This had failures as there's x86_64 tools it tries to use, which obviously don't run on ARM64. Instead, I ran a bunch of steps from mk-uboot.sh manually.
+
+3) THen used this to flash over the miniloader + u-boot SPL: https://patchwork.ozlabs.org/patch/819391
+# writes xypron sudo dd if=image of=/dev/mmcblk0 bs=16M
+sudo dd if=idbloader-666mhz_v1.08.img of=/dev/mmcblk0 seek=64 conv=notrunc
+sudo dd if=trust.img of=/dev/mmcblk0 seek=24576 conv=notrunc
+sudo dd if=newuboot-diff-mkimage.img of=/dev/mmcblk0 seek=16384 conv=notrunc
+
+
+## got ATF from eMMC on /dev/mmcblk1p2
+## Flashed to /dev/mmcblk0 seek=24576
+## Version of ATF changed, however entry point remained the same !!! unusual.
+
+
+Progress:
+If using Firefly-rk3399 Ubuntu SD card image, it boots properly on SD.
+SD seems to have a layout similar to eMMC, what I've found so far:
+8192: params (these must be flashed with upgrade_tool as it seems to checksum them)
+16384: u-boot
+24576: trust
+32768: resource
+65536: kernel (probably a rockchip kernel image as the header starts with KRNL)
+
+Community member (beeble) mentioned that my boot logs showed it was not using u-boot or atf on sdcard, tested wiping u-boot on SDCard and indeed it still boots the kernel from the SDCard (showing that u-boot on firefly rk3399 emmc is being used).
+
+If I replace the kernel with a self compiled one, it hangs on 'Starting kernel...'
+However, it looks like it correctly determines the size of the kernel image!! See here:
+kernel   @ 0x00280000 (0x014e0a00)
+#0x014e0a00 == 21891584 (exact size in bytes of Image file before it was wrapped in rockchip header)
+
+Kernel was created with ./rkbin/tools/mkkrnlimg Image kernel.img
+sudo dd if=kernel.img of=/dev/sdb seek=65536 conv=notrunc,fsync
+
+Kernel hangs because the resource image was incorrect for the given kernel (contains DTB).
+Recreated resource with the rkbin/tools/resource_tool with new DTB and logo.bmp from existing resource.img:
+../rkbin/tools/resource_tool --pack --image=new-resource-v416.1-0x6000.img newimg/*
+sudo dd if=new-resource-v416.1-0x6000.img of=/dev/mmcblk0 seek=32768 conv=notrunc,fsync
+
+
+Still hangs at Starting kernel ... Turns out that kernel commandline parameters must be modified to see the output with mainline.
+Modified parameter_gpt.txt with new console and earlycon parametrs, and now we're getting somewhere! Now the kernel hangs at: 
+[    1.861809] pwm-backlight backlight: backlight supply power not found, using dummy regulator
+[    1.876436] dma-pl330 ff6d0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    1.877531] dma-pl330 ff6d0000.dma-controller:       DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+[    1.886824] dma-pl330 ff6e0000.dma-controller: Loaded driver for PL330 DMAC-241330
+[    1.887742] dma-pl330 ff6e0000.dma-controller:       DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+[    1.891033] pwm-regulator: supplied by regulator-dummy
+
+To flash a new parameter_gpt.txt with proper checksumming, you need to get the Firefly RK3399 into rockusb mode while the SDCard is plugged in:
+Flash some dodgy params modified by hex:
+sudo dd if=newparams4 of=/dev/sdb seek=8192 conv=notrunc,fsync
+Reboot RK3399 with SDcard inserted and it should go into rockusb mode.
+Then use:
+./upgrade_tool
+#select the device
+#Push up the new params:
+DI -p parameter_gpt.txt
+#Reset the device to test new params
+rd
+
+Tried a supplied config for a rk3399-puma from beeble on IRC. Still hangs in same spot.
+
+Try this kernel next: git clone -b rockchip-4.16 https://github.com/Kwiboo/linux-rockchip.git
+
