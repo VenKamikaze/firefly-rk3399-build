@@ -7,3 +7,5 @@ Note: parameters used disable cpufreq and cpuidle. This may not be required. Als
 What IS required is: clk_ignore_unused  or it will hang when disabling unused clocks (no idea why)
 
 Note: I compiled a linux-rockchip kernel from kernel.org with tag v4.16 with this config.
+
+Warning: This kernel fails to recognise any SD or eMMC partitions (I did not try USB), so it's fairly broken.
