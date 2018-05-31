@@ -1,4 +1,7 @@
 This one actually boots all the way to trying to find a rootfs.
+FAN53555 is a [M]odule on this one, as I had a hint on IRC that this seemed to be related to kernel hangs for some other people.
+Note: since my kernel doesn't find a rootfs, the module is never loaded - so it may still cause a hang when eventually loaded.
+
 Note: parameters used disable cpufreq and cpuidle. This may not be required. Also, it still includes debug params, which most likely can be removed.
 
 What IS required is: clk_ignore_unused  or it will hang when disabling unused clocks (no idea why)
