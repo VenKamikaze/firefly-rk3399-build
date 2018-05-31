@@ -1,0 +1,6 @@
+This one actually boots all the way to trying to find a rootfs.
+Note: parameters used disable cpufreq and cpuidle. This may not be required. Also, it still includes debug params, which most likely can be removed.
+
+What IS required is: clk_ignore_unused  or it will hang when disabling unused clocks (no idea why)
+
+Note: I compiled a linux-rockchip kernel from kernel.org with tag v4.16 with this config.
