@@ -20,7 +20,7 @@ Files in this directory:
 * rk3399-firefly.dts  (patched version of mainline DTS that seems to fix hangs with fan53555 and pwm-regulator modules, at least on my firefly).
 * rsc-custom-patches.img  (resource image, to be flashed at offset 32768. Contains compiled DTB of rk3399-firefly.dts, renamed to rk-kernel.dtb, also contains 'logo.bmp' purely because the existing resource image I unpacked had it, so thought the firefly might expect it).
 * config  (kernel config for linux-rockchip tags/v4.16 that works with my firefly)
-
+* rk3399-firefly.patch  (this is the patch file that should apply to the original rk3399-firefly.dts in the mainline kernel, note: this is ALREADY APPLIED to the rk3399-firefly.dts file in this directory).
 
 Instructions to use:
 #Get rkbin and get your kernel and extract it
