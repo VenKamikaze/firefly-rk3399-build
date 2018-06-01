@@ -1,0 +1,33 @@
+Description:
+
+This is a workable kernel for my Firefly-RK3399 (2GB variant).
+
+I had to make both fan53555 and pwm-regulator modules for this kernel, as the default DTS supplied with the mainline kernel I used seemed to cause hangs when these two drivers were loaded on boot.
+
+I ended up comparing the rk3399-firefly.dts against a decompiled one from the eMMC, and from the firefly tree here: https://gitlab.com/TeeFirefly/linux-kernel/blob/gitlab/firefly/arch/arm64/boot/dts/rockchip/rk3399-firefly-linux.dts
+
+I found a couple of things related to the fan53555 regulator, and pwm-regulator that I thought looked a bit odd, so I made some small changes. Surprisingly, this seems to have worked, as I can now load fan53555 and pwm-regulator on the Firefly-RK3399 (2GB) without it hanging.
+
+Note that the fan53555 module is required for the cpufreq_dt module to be able to function.
+
+I've included the dts file I used in this directory.
+
+I had some hangs on bootup before enabling the parameter 'clk_ignore_unused' but to be honest I am not 100% certain it is still required after the DTS changes. I've left it there anyway as it doesn't seem to have caused any harm.
+
+Note: I compiled a linux-rockchip kernel from kernel.org with tag v4.16 with this config.
+
+Files in this directory:
+* rk3399-firefly.dts  (patched version of mainline DTS that seems to fix hangs with fan53555 and pwm-regulator modules, at least on my firefly).
+* rsc-custom-patches.img  (resource image, to be flashed at offset 32768. Contains compiled DTB of rk3399-firefly.dts, renamed to rk-kernel.dtb, also contains 'logo.bmp' purely because the existing resource image I unpacked had it, so thought the firefly might expect it).
+* config  (kernel config for linux-rockchip tags/v4.16 that works with my firefly)
+
+
+Instructions to use:
+#Get your kernel and extract it
+mkdir rk3399
+cd rk3399
+wget https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/snapshot/linux-rockchip-4.16.tar.gz
+tar -xvf linux-rockchip-4.16
+
+#Get the config
+
