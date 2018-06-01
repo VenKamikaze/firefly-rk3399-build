@@ -74,6 +74,9 @@ dd if=linux-rockchip-4.16/"$KRNLIMG" of=Firefly-rk3399_xubuntu1604_SD_2017051517
 wget https://github.com/VenKamikaze/firefly-rk3399-build/raw/master/compiled/kill-params-force-rockusb
 dd if=kill-params-force-rockusb of=Firefly-rk3399_xubuntu1604_SD_201705151725.img seek=8192 conv=notrunc,fsync
 
+#Flash the Firefly-rk3399 img to your SDCard:
+sudo dd if=Firefly-rk3399_xubuntu1604_SD_201705151725.img of=/dev/YOUR_DEVICE_HERE bs=1M conv=fsync
+
 #Download the rockchip "upgrade_tool" which will let you reflash new params
 wget http://dl.radxa.com/rock/tools/linux/Linux_Upgrade_Tool_v1.21.zip
 #Note: I had v1.26, but I don't know where I got it from. Hopefully this one works.
