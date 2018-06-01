@@ -23,11 +23,82 @@ Files in this directory:
 
 
 Instructions to use:
-#Get your kernel and extract it
+#Get rkbin and get your kernel and extract it
 mkdir rk3399
 cd rk3399
+git clone https://github.com/rockchip-linux/rkbin.git
 wget https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/snapshot/linux-rockchip-4.16.tar.gz
 tar -xvf linux-rockchip-4.16
+cd linux-rockchip-4.16
 
 #Get the config
+wget -O .config https://github.com/VenKamikaze/firefly-rk3399-build/raw/master/kernel/configs/working-4.16-rockchip/config
 
+#Get the DTS
+wget https://github.com/VenKamikaze/firefly-rk3399-build/raw/master/kernel/configs/working-4.16-rockchip/rk3399-firefly.dts
+mv -vf rk3399-firefly.dts arch/arm64/boot/dts/rockchip/
+
+#Compile everything
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-linux-gnu-
+make -j4 all
+
+# Install the modules under a subdir for later use
+mkdir build-${ARCH}-modules
+make INSTALL_MOD_PATH=build-${ARCH}-modules INSTALL_MOD_STRIP=1 modules_install
+
+../rkbin/tools/mkkrnlimg arch/arm64/boot/Image kernel-$(date +%F).img
+
+#Optionally, pack your own resource image (or just use rsc-custom-patches.img in this repo)
+cd ..
+mkdir newresource
+cd newresource
+cp ../linux-rockchip-4.16/arch/arm64/boot/dts/rockchip/rk3399-firefly.dtb ./rk-kernel.dtb
+#Note: logo.bmp is not included here, probably doesn't matter but pointing it out just incase.
+../rkbin/tools/resource_tool --pack --image=../new-resource.img *
+cd ..
+
+# Get the firefly-rk3399 provided SDCard image as a base (because I can just be lazy and modify it as needed). You might need a web browser to get this one: https://drive.google.com/file/d/0B7HO8lbGgAqAR3FVYzAxbW5EMTg/view
+
+#Extract it:
+7z x Firefly-rk3399_xubuntu1604_SD_201705151725.7z
+
+# Flash our new parts over it
+dd if=new-resource.img of=Firefly-rk3399_xubuntu1604_SD_201705151725.img seek=32768 conv=notrunc,fsync
+KRNLIMG=kernel-$(date +%F).img
+dd if=linux-rockchip-4.16/"$KRNLIMG" of=Firefly-rk3399_xubuntu1604_SD_201705151725.img seek=65536 conv=notrunc,fsync
+
+# We're still not done, we need to flash new kernel parameters. I believe these are checksummed, somehow, as I could not directly modify the hex values for these and re-flash, so we have to force incorrect parameters onto the SDCard image, and then boot it. This will put us into rockusb mode, and allow us to use the 'upgrade_tool' from rockchip to flash new parameters.
+
+#Flash the dodgy parameters to the SDCard to force rockusb mode on bootup:
+wget https://github.com/VenKamikaze/firefly-rk3399-build/raw/master/compiled/kill-params-force-rockusb
+dd if=kill-params-force-rockusb of=Firefly-rk3399_xubuntu1604_SD_201705151725.img seek=8192 conv=notrunc,fsync
+
+#Download the rockchip "upgrade_tool" which will let you reflash new params
+wget http://dl.radxa.com/rock/tools/linux/Linux_Upgrade_Tool_v1.21.zip
+#Note: I had v1.26, but I don't know where I got it from. Hopefully this one works.
+unzip Linux_Upgrade_Tool_v1.21.zip
+
+# Put the SDCard into your powered off RK3399, with your USB cable connected to the serial debug, then power it on. Use minicom with baud 1500000n8 to access it.
+# It should be in rockusb mode.
+
+# Now back on your PC, continuing where we left off:
+# Get the parameters we want to use
+wget https://github.com/VenKamikaze/firefly-rk3399-build/raw/master/kernel/configs/working-4.16-rockchip/parameter_gpt.txt
+
+# Now use the rockchip upgrade tool
+./upgrade_tool
+# select the device, probably '1'
+# You should see a prompt now 'Rockusb>'
+# Write the new params:
+DI -p parameter_gpt.txt
+# It should have successfully written them. If so, reboot with 'rd':
+rd
+
+# Your board should now be attempting to boot.
+# Note: I had a hang using the default xubuntu rootfs, but it didn't bother me, as I switched it to the ArchLinux ARM (GRU) rootfs.
+# You also still need to copy your kernel modules to the rootfs. Let's assume it's mounted at /run/media/someuser/root/
+rsync -av linux-rockchip-4.16/build-${ARCH}-modules/lib/modules/* /run/media/someuser/root/lib/modules/
+sync
+
+# It should now be bootable.
