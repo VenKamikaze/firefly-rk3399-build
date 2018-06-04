@@ -210,11 +210,11 @@
 		regulator-always-on;
 		regulator-boot-on;
 		regulator-min-microvolt = <800000>;
-		regulator-max-microvolt = <1100000>; /* was 1400000 */
+		regulator-max-microvolt = <1100000>;
 		vin-supply = <&vcc_sys>;
 
-    /* for rockchip boot on */
-		rockchip,pwm_id= <2>;
+		/* for rockchip boot on */
+		rockchip,pwm_id = <2>;
 		rockchip,pwm_voltage = <1000000>;
 	};
 };
@@ -466,13 +466,13 @@
 		regulator-min-microvolt = <712500>;
 		regulator-max-microvolt = <1500000>;
 		regulator-ramp-delay = <1000>;
-    vsel-gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
-    fcs,suspend-voltage-selector = <0>;
+		vsel-gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+		fcs,suspend-voltage-selector = <0>;
 		regulator-always-on;
 		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
 
-    regulator-initial-state = <3>;
+		regulator-initial-state = <3>;
 		regulator-state-mem {
 			regulator-off-in-suspend;
 		};
@@ -485,12 +485,12 @@
 		regulator-min-microvolt = <712500>;
 		regulator-max-microvolt = <1500000>;
 		regulator-ramp-delay = <1000>;
-    fcs,suspend-voltage-selector = <1>;
+		fcs,suspend-voltage-selector = <1>;
 		regulator-always-on;
 		regulator-boot-on;
 		vin-supply = <&vcc_sys>;
 
-    regulator-initial-state = <3>;
+		regulator-initial-state = <3>;
 		regulator-state-mem {
 			regulator-off-in-suspend;
 		};
