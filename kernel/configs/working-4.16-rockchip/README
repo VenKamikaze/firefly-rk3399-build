@@ -2,7 +2,7 @@ Description:
 
 This is a workable kernel for my Firefly-RK3399 (2GB variant).
 
-I had to make both fan53555 and pwm-regulator modules for this kernel, as the default DTS supplied with the mainline kernel I used seemed to cause hangs when these two drivers were loaded on boot.
+I had to make both fan53555 and pwm-regulator modules (instead of built-ins) for this kernel, as the default DTS supplied with the mainline kernel I used seemed to cause hangs when these two drivers were loaded on boot.
 
 I ended up comparing the rk3399-firefly.dts against a decompiled one from the eMMC, and from the firefly tree here: https://gitlab.com/TeeFirefly/linux-kernel/blob/gitlab/firefly/arch/arm64/boot/dts/rockchip/rk3399-firefly-linux.dts
 
