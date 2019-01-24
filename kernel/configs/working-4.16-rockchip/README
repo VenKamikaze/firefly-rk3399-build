@@ -32,7 +32,7 @@ mkdir rk3399
 cd rk3399
 git clone https://github.com/rockchip-linux/rkbin.git
 wget https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/snapshot/linux-rockchip-4.16.tar.gz
-tar -xvf linux-rockchip-4.16
+tar -xvf linux-rockchip-4.16.tar.gz
 cd linux-rockchip-4.16
 
 #Get the config
