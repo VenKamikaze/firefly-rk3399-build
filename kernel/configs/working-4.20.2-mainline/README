@@ -1,2 +1,4 @@
 WiFi additions to the device tree source killed bootup.
 I've removed the WiFi from the DTS as I'm not sure how to get it working. The FireFly tree has a very different WiFi configuration so I haven't been able to implement it into the mainline DTS.
+
+Kernel source used: https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.20.2.tar.xz
