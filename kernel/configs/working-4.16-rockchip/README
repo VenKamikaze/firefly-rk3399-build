@@ -26,7 +26,25 @@ Files in this directory:
 * config  (kernel config for linux-rockchip tags/v4.16 that works with my firefly)
 * rk3399-firefly.patch  (this is the patch file that should apply to the original rk3399-firefly.dts in the mainline kernel, note: this is ALREADY APPLIED to the rk3399-firefly.dts file in this directory).
 
-Instructions to use:
+Pre-reqs:
+
+If you have a newly shipped Firefly board, you'll need to make sure the image on your eMMC is a new enough version that it will attempt to boot from the SD before falling back to the eMMC.
+
+I flashed the image from the Firefly Google Drive download known as: Firefly-RK3399-ubuntu16.04-20180416112819.tgz to my eMMC before creating and booting from this SDCard image. This image seemed to enable SDCard booting. I would assume newer images do as well, but I have not tested them.
+
+You can find this image from Firefly:
+1) Go to the firefly firmware download page for RK3399: http://en.t-firefly.com/doc/download/3.html
+2) Click download on 'Ubuntu 16.04 image', select 'Official'
+3) It will take you to Google Drive. 
+4a) Choose an image, OR if you want the exact image I used for eMMC, click 'Ubuntu16.04'
+4b) Then select the 201804 xubuntu image to download.
+
+You will also need the rkbin upgrade_tool (mentioned in link below). 
+
+Instructions for flashing can be found here: http://wiki.t-firefly.com/en/Firefly-RK3399/flash-image.html
+Or here: http://bbs.t-firefly.com/forum.php?mod=viewthread&tid=2294
+
+Instructions to create the bootable SDCard with newer kernel:
 #Get rkbin and get your kernel and extract it
 mkdir rk3399
 cd rk3399
