@@ -1,0 +1,10 @@
+WiFi+BT additions to the device tree source killed bootup.
+I've removed the WiFi+BT from the DTS as I'm not sure how to get it working. The FireFly tree has a very different WiFi configuration so I haven't been able to implement it into the mainline DTS.
+
+Mainline linux 5.3.0 tag used from Linus Torvalds tree.
+
+Notes:
+1) Some clocks still don't get set correctly on boot, so some peripherals may not work
+2) I've changed the vdd_log max-microvolt and pwm_voltage settings to reflect latest updates in the FireFly kernel tree, as I found using their values here helped my board boot when I first looked into doing this (around kernel 4.16).
+3) I had to fully poweroff and power back up after flashing this kernel+resource to SD. Rebooting from the old kernel (with the differing vdd_log) caused CPU4 & CPU5 to not come up properly and dmesg showed a lot more regulator errors.
+4) I've noticed LDO_REG2 is vcc2v8_dvp in mainline, but is vcc3v0_tp in firefly tree. The min/max voltages differ between these - might be a good candidate to change up next time I do a kernel build.
