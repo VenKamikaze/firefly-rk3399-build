@@ -1,0 +1,25 @@
+Linux 5.13.1 now works without any DTS changes.
+
+Instead (at least for my firefly rk3399 revision) you must blacklist the pwm-regulator driver or you'll find it hangs at boot:
+
+sudo su -
+cat <<EOF >>/etc/modprobe.d/blacklist.conf
+blacklist pwm-regulator
+EOF
+
+
+To get WiFi working on ArchLinux ARM you need to make the following symlink and set brcmfmac to start on boot:
+sudo su -
+pacman -Syu linux-firmware
+ln -s /lib/firmware/brcm/{brcmfmac4356-sdio.vamrs,rock960.txt,brcmfmac4356-sdio.firefly,firefly-rk3399.txt}
+modprobe brcmfmac
+ifconfig wlan0 up
+#use whatever daemon you like to connect to an AP
+#Set brcmfmac to start on boot:
+cat <<EOF >/etc/modules.load.d/brcmfmac.conf
+brcmfmac
+EOF
+
+I've included a compiled kernel, modules, resource (DTB), and kernel config for posterity.
+kernel and resource are packed using the rockchip tools (mkkrnlimg and resource_tool)
+I've also included my dodgy little script for producing the kernel & resource images and flashing it to SD (note: this is for MY OWN use)
